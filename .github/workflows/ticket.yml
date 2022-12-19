@@ -1,0 +1,49 @@
+name: Ticket Number Check
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  check-ticket-number:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Print GITHUB_EVENT_PATH
+        run: echo "$GITHUB_EVENT_PATH"
+      - name: Check for ticket number
+        run: |
+          # Use the value of the `ticket_number_pattern` input as the regular expression for matching the ticket number in the pull request description
+          # If the input is not provided, use a default pattern that matches the desired format
+          description_pattern=${INPUT_TICKET_NUMBER_PATTERN:-"\\[SC-[0-9]+\\]\\(https://app.shortcut.com/jit/story/[0-9]+\\)"}
+
+          # Use the value of the `title_pattern` input as the regular expression for matching the pattern in the pull request title
+          # If the input is not provided, use a default pattern that matches the desired format
+          title_pattern=${INPUT_TITLE_PATTERN:-"SC-[0-9]+"}
+
+          # Check for the ticket number in the pull request description or a comment from "jit-bot"
+          if ! grep -Ei "$description_pattern" "$GITHUB_EVENT_PATH" || ! grep -Ei "^.*jit-bot.*$" "$GITHUB_EVENT_PATH"; then
+            echo "ERROR: No ticket number or comment from jit-bot found in pull request description!"
+            exit 1
+          fi
+
+          # Check for the pattern in the pull request title if the `check_title` input is set to "true"
+          if [ "$INPUT_CHECK_TITLE" = "true" ]; then
+            if ! grep -Ei "^$title_pattern" "$GITHUB_EVENT_PATH"; then
+              echo "ERROR: Pull request title does not start with the required pattern!"
+              exit 1
+            fi
+          fi
+
+inputs:
+  ticket_number_pattern:
+    description: "A regular expression to use for matching the ticket number in the pull request description. If not provided, a default pattern will be used."
+    default: "[SC-[0-9]+]\\(https://app.shortcut.com/jit/story/[0-9]+\\)"
+  check_title:
+    description: "A flag indicating whether to check the pull request title for the required pattern. Set to 'true' to enable the check, or 'false' to disable it."
+    default: "false"
+  title_pattern:
+    description: "A regular expression to use for matching the required pattern in the pull request title. If not provided, a default pattern will be used."
+    default: "SC-[0-9]+"
