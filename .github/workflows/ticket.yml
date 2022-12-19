@@ -27,7 +27,7 @@ jobs:
       - name: Print GITHUB_EVENT_PATH
         run: |
           "echo $GITHUB_EVENT_PATH"
-          "echo ${{ github.event.number }}"
+          "echo ${{ github.event }}"
       - name: Check for ticket number
         run: |
           # Use the value of the `ticket_number_pattern` input as the regular expression for matching the ticket number in the pull request description
