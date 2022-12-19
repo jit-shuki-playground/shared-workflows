@@ -27,7 +27,6 @@ jobs:
       - name: Print GITHUB_EVENT_PATH
         run: |
           "echo $GITHUB_EVENT_PATH"
-          cat $GITHUB_EVENT_PATH
           "echo ${{ fromJSON(github.event) }}"
       - name: Check for ticket number
         run: |
