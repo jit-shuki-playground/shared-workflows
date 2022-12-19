@@ -24,10 +24,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Print GITHUB_EVENT_PATH
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
         run: |
-          "echo $GITHUB_EVENT_PATH"
-          "echo ${{ fromJSON(github.event) }}"
+          echo "$GITHUB_CONTEXT"
       - name: Check for ticket number
         run: |
           # Use the value of the `ticket_number_pattern` input as the regular expression for matching the ticket number in the pull request description
