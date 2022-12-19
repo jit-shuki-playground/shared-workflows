@@ -1,11 +1,24 @@
 name: Ticket Number Check
 
+
+
 on:
   pull_request:
     branches:
       - main
+    
   workflow_dispatch:
-
+    inputs:
+      ticket_number_pattern:
+        description: "A regular expression to use for matching the ticket number in the pull request description. If not provided, a default pattern will be used."
+        default: "[SC-[0-9]+]\\(https://app.shortcut.com/jit/story/[0-9]+\\)"
+      check_title:
+        description: "A flag indicating whether to check the pull request title for the required pattern. Set to 'true' to enable the check, or 'false' to disable it."
+        default: "false"
+      title_pattern:
+        description: "A regular expression to use for matching the required pattern in the pull request title. If not provided, a default pattern will be used."
+        default: "SC-[0-9]+"
+    
 jobs:
   check-ticket-number:
     runs-on: ubuntu-latest
@@ -36,14 +49,3 @@ jobs:
               exit 1
             fi
           fi
-
-inputs:
-  ticket_number_pattern:
-    description: "A regular expression to use for matching the ticket number in the pull request description. If not provided, a default pattern will be used."
-    default: "[SC-[0-9]+]\\(https://app.shortcut.com/jit/story/[0-9]+\\)"
-  check_title:
-    description: "A flag indicating whether to check the pull request title for the required pattern. Set to 'true' to enable the check, or 'false' to disable it."
-    default: "false"
-  title_pattern:
-    description: "A regular expression to use for matching the required pattern in the pull request title. If not provided, a default pattern will be used."
-    default: "SC-[0-9]+"
