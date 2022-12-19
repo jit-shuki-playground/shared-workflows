@@ -28,9 +28,11 @@ jobs:
       - uses: actions/checkout@v2
       - name: Dump GitHub context
         env:
-          GITHUB_CONTEXT: ${{ toJson(github.event.pull_request) }}
+          PR_TITLE: ${{ toJson(github.event.pull_request.title) }}
+          PR_BODY: ${{ toJson(github.event.pull_request.body) }}
         run: |
-          echo "$GITHUB_CONTEXT"
+          echo "$PR_TITLE"
+          echo "$PR_BODY"
       - name: Check for ticket number
         run: |
           # Use the value of the `ticket_number_pattern` input as the regular expression for matching the ticket number in the pull request description
@@ -42,14 +44,14 @@ jobs:
           title_pattern=${INPUT_TITLE_PATTERN:-"SC-[0-9]+"}
 
           # Check for the ticket number in the pull request description or a comment from "jit-bot"
-          if ! grep -Ei "$description_pattern" "$GITHUB_EVENT_PATH" || ! grep -Ei "^.*jit-bot.*$" "$GITHUB_EVENT_PATH"; then
+          if ! grep -Ei "$description_pattern" "$PR_BODY" || ! grep -Ei "^.*jit-bot.*$" "$GITHUB_EVENT_PATH"; then
             echo "ERROR: No ticket number or comment from jit-bot found in pull request description!"
             exit 1
           fi
 
           # Check for the pattern in the pull request title if the `check_title` input is set to "true"
           if [ "$INPUT_CHECK_TITLE" = "true" ]; then
-            if ! grep -Ei "^$title_pattern" "$GITHUB_EVENT_PATH"; then
+            if ! grep -Ei "^$title_pattern" "$PR_TITLE"; then
               echo "ERROR: Pull request title does not start with the required pattern!"
               exit 1
             fi
