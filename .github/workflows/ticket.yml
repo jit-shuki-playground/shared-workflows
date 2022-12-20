@@ -37,21 +37,25 @@ jobs:
         run: |
           # Use the value of the `ticket_number_pattern` input as the regular expression for matching the ticket number in the pull request description
           # If the input is not provided, use a default pattern that matches the desired format
-          PR_TITLE: ${{ toJson(github.event.pull_request.title) }}
           PR_BODY: ${{ toJson(github.event.pull_request.body) }}
           description_pattern=${INPUT_TICKET_NUMBER_PATTERN:-"\\[SC-[0-9]+\\]\\(https://app.shortcut.com/jit/story/[0-9]+\\)"}
           echo "$PR_BODY"
           echo "$description_pattern"
-          # Use the value of the `title_pattern` input as the regular expression for matching the pattern in the pull request title
-          # If the input is not provided, use a default pattern that matches the desired format
-          title_pattern=${INPUT_TITLE_PATTERN:-"SC-[0-9]+"}
-
+          
           # Check for the ticket number in the pull request description or a comment from "jit-bot"
           if ! grep -Ei "$description_pattern" "$PR_BODY" || ! grep -Ei "^.*jit-bot.*$" "$GITHUB_EVENT_PATH"; then
             echo "ERROR: No ticket number or comment from jit-bot found in pull request description!"
             exit 1
           fi
 
+          # Use the value of the `title_pattern` input as the regular expression for matching the pattern in the pull request title
+          # If the input is not provided, use a default pattern that matches the desired format
+          PR_TITLE: ${{ toJson(github.event.pull_request.title) }}
+          title_pattern=${INPUT_TITLE_PATTERN:-"SC-[0-9]+"}
+          echo "$PR_TITLE"
+          echo "$title_pattern"
+          echo "$INPUT_CHECK_TITLE"
+          
           # Check for the pattern in the pull request title if the `check_title` input is set to "true"
           if [ "$INPUT_CHECK_TITLE" = "true" ]; then
             if ! grep -Ei "^$title_pattern" "$PR_TITLE"; then
