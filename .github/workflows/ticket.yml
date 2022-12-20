@@ -37,6 +37,8 @@ jobs:
         run: |
           # Use the value of the `ticket_number_pattern` input as the regular expression for matching the ticket number in the pull request description
           # If the input is not provided, use a default pattern that matches the desired format
+          PR_TITLE: ${{ toJson(github.event.pull_request.title) }}
+          PR_BODY: ${{ toJson(github.event.pull_request.body) }}
           description_pattern=${INPUT_TICKET_NUMBER_PATTERN:-"\\[SC-[0-9]+\\]\\(https://app.shortcut.com/jit/story/[0-9]+\\)"}
           echo "$PR_BODY"
           echo "$description_pattern"
